@@ -43,24 +43,26 @@ class Hosts {
         return utils.getInfo().isInRange(String.valueOf(address));
     }
 
-    List checkHosts() throws IOException {
-        int subIpStart = vectorIp.get(2);
-        int countZeroSubIp = (int) (Math.pow(2, (8 - Integer.bitCount(vectorMask.get(2)))) - 1);
-        int subIpFinish = vectorIp.get(2) + countZeroSubIp;
-        for(int i = subIpStart; i < subIpFinish; i++) {
+    private int getFinalSubIp( int position ) {
+        return vectorIp.get(position) + (int) (Math.pow(2, (8 - Integer.bitCount(vectorMask.get(position)))) - 1);
+    }
+
+    List checkHosts() {
+        int subIpStartI = vectorIp.get(2);
+        int subIpFinishI = getFinalSubIp(2);
+
+        int subIpStartJ = vectorIp.get(3);
+        int subIpFinishJ = getFinalSubIp(3);
+
+        for(int i = subIpStartI; i <= subIpFinishI; i++) {
             StringBuilder host = new StringBuilder();
             host.append(vectorIp.get(0)).append(".").append(vectorIp.get(1)).append(".").append(i);
-            for (int j = 1; j < 255; j++) {
-                StringBuilder address = new StringBuilder(host);
-                address.append(".").append(j);
-                if (getAvailableHost(address)) {
-                    availableHosts.add(address.toString());
-                }
+            for (int j = subIpStartJ; j < subIpFinishJ; j++) {
+                availableHosts.add(host + "." + j);
             }
         }
         return availableHosts;
     }
 }
-
 
 //https://stackoverflow.com/questions/3345857/how-to-get-a-list-of-ip-connected-in-same-network-subnet-using-java
