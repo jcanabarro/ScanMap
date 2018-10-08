@@ -183,18 +183,20 @@ class IcmpRequest:
         """
         median_delay = []
         for i in range(count):
-            print("ping %s..." % dest_addr, end=' ')
+            # print("ping %s..." % dest_addr, end=' ')
             try:
                 self.delay = self.do_one(dest_addr, timeout)
             except socket.gaierror:
-                print("failed. (socket error)")
+                # print("failed. (socket error)")
                 break
 
             if self.delay is None:
-                print("failed. (timeout within %ssec.)" % timeout)
+                # print("failed. (timeout within %ssec.)" % timeout)
+                pass
             else:
                 self.delay = self.delay * 1000
                 median_delay.append(self.delay)
-                print("get ping in %0.4fms" % self.delay)
-        print()
-        return median_delay
+                # print("get ping in %0.4fms" % self.delay)
+                return dest_addr
+        # print()
+        return None

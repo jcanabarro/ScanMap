@@ -1,3 +1,7 @@
+import ipaddress
+import math
+
+
 def str_to_int(vec):
     return int(vec, base=2)
 
@@ -13,19 +17,18 @@ def address2bin(addr):
 
 def bin2address(b):
     parts = [b[:8], b[8:16], b[16:24], b[24:32]]
+    print(parts)
     return '.'.join([str(int(p, 2)) for p in parts])
 
 
 class Hosts:
 
-    def __init__(self, mask, ip):
+    def __init__(self, ip, mask):
         self.mask = mask
         self.ip = ip
         self.binary_mask = address2bin(self.mask)
         self.binary_ip = address2bin(self.ip)
-        print(self.binary_mask)
-        print(self.binary_ip)
 
     def get_available_hosts(self):
-        ip_address = (2 ** 32) - str_to_int(self.binary_mask) - 1
-        print(ip_address)
+        ip_address = math.log((2 ** 32) - str_to_int(self.binary_mask) - 1) / math.log(2)
+        return list(ipaddress.ip_network(self.ip + '/' + str(32 - round(ip_address))))
