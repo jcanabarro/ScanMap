@@ -149,6 +149,7 @@ class IcmpRequest:
             "bbHHh", self.ICMP_ECHO_REQUEST, 0, socket.htons(my_checksum), ID, 1
         )
         packet = header + data
+        my_socket.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
         my_socket.sendto(packet, (dest_addr, 1))  # Don't know about the 1
 
     def do_one(self, dest_addr, timeout):
@@ -177,26 +178,15 @@ class IcmpRequest:
         return delay
 
     def verbose_ping(self, dest_addr, timeout, count):
-        """
-        Send >count< ping to >dest_addr< with the given >timeout< and display
-        the result.
-        """
         median_delay = []
         for i in range(count):
-            # print("ping %s..." % dest_addr, end=' ')
             try:
                 self.delay = self.do_one(dest_addr, timeout)
             except socket.gaierror:
-                # print("failed. (socket error)")
                 break
 
-            if self.delay is None:
-                # print("failed. (timeout within %ssec.)" % timeout)
-                pass
-            else:
+            if self.delay is not None:
                 self.delay = self.delay * 1000
                 median_delay.append(self.delay)
-                # print("get ping in %0.4fms" % self.delay)
-                return dest_addr
-        # print()
+                return dest_addr, self.delay
         return None
