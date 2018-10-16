@@ -16,6 +16,7 @@ class TcpRequest:
     def scan_ports(self, host_ip, delay):
         threads = []
         output = {}
+        available_ports = []
 
         # Spawning threads to scan ports
         for i in range(1000):
@@ -34,5 +35,7 @@ class TcpRequest:
         # Printing listening ports from small to large
         for i in range(1000):
             if output[i] == 'Listening':
+                available_ports.append(i)
                 print(str(i) + ' ', end="")
         print(']')
+        return available_ports
