@@ -4,38 +4,25 @@ import socket, threading
 class TcpRequest:
 
     def __TCP_connect(self, ip, port_number, delay, output):
-        TCPsock = socket.socket()
-        TCPsock.settimeout(delay)
+        s = socket.socket()
+        s.settimeout(delay)
         try:
-            TCPsock.connect((ip, port_number))
-            output[port_number] = 'Listening'
-
-        except:
-            output[port_number] = ''
+            s.connect((ip, port_number))
+            output.append(port_number)
+        except (socket.error, socket.herror, socket.timeout, socket.gaierror):
+            pass
+        finally:
+            s.close()
 
     def scan_ports(self, host_ip, delay):
-        threads = []
-        output = {}
         available_ports = []
+        for i in range(1, 65):
+            threads = []
+            for port in range(i, 1024 + i):
+                thread = threading.Thread(target=self.__TCP_connect, args=(host_ip, port, delay * 1.5, available_ports,))
+                thread.start()
+                threads.append(thread)
+            for thread in threads:
+                thread.join()
 
-        # Spawning threads to scan ports
-        for i in range(1000):
-            t = threading.Thread(target=self.__TCP_connect, args=(host_ip, i, delay * 1.5, output))
-            threads.append(t)
-
-        # Starting threads
-        for i in range(1000):
-            threads[i].start()
-
-        # Locking the script until all threads complete
-        for i in range(1000):
-            threads[i].join()
-
-        print('Checking [%s] available ports: [ ' % host_ip, end="")
-        # Printing listening ports from small to large
-        for i in range(1000):
-            if output[i] == 'Listening':
-                available_ports.append(i)
-                print(str(i) + ' ', end="")
-        print(']')
         return available_ports
