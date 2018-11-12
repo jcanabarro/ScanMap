@@ -16,10 +16,10 @@ class TcpRequest:
 
     def scan_ports(self, host_ip, delay):
         available_ports = []
-        for i in range(1, 65):
+        for i in range(0, 65536, 512):
             threads = []
-            for port in range(i, 1024 + i):
-                thread = threading.Thread(target=self.__TCP_connect, args=(host_ip, port, delay * 1.5, available_ports,))
+            for port in range(1, 512):
+                thread = threading.Thread(target=self.__TCP_connect, args=(host_ip, port + i, delay * 1.5, available_ports,))
                 thread.start()
                 threads.append(thread)
             for thread in threads:
